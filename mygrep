@@ -1,0 +1,35 @@
+#!/bin/bash
+
+INC_FILES=""
+EXC_FILES="tags"
+EXC_DIRS=".svn .git"
+
+usage() {
+	echo "Usage: $0 [-i INC_FILE] [-e EXC_FILE] [-d EXC_DIR] WORD" 1>&2
+	exit 1
+}
+
+while getopts i:e:d: OPT
+do
+    case $OPT in
+        i)  INC_FILES="$INC_FILES $OPTARG"
+            ;;
+        e)  EXC_FILES="$EXC_FILES $OPTARG"
+            ;;
+        d)  EXC_DIRS="$EXC_DIRS $OPTARG"
+            ;;
+        \?) usage
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+[ $# -le 0 ] && usage
+
+WORD=$1
+for i in $INC_FILES; do INCLUDE="$INCLUDE --include=$i"; done
+for i in $EXC_FILES; do EXCLUDE="$EXCLUDE --exclude=$i"; done
+for i in $EXC_DIRS; do EXCLUDE_DIR="$EXCLUDE_DIR --exclude-dir=$i"; done
+
+GREP_OPT="--color=auto -rn $INCLUDE $EXCLUDE $EXCLUDE_DIR"
+grep $GREP_OPT $WORD
