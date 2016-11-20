@@ -32,4 +32,4 @@ for i in $EXC_FILES; do EXCLUDE="$EXCLUDE --exclude=$i"; done
 for i in $EXC_DIRS; do EXCLUDE_DIR="$EXCLUDE_DIR --exclude-dir=$i"; done
 
 GREP_OPT="--color=auto -rn $INCLUDE $EXCLUDE $EXCLUDE_DIR"
-grep $GREP_OPT $WORD
+grep $GREP_OPT "$WORD"
