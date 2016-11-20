@@ -12,6 +12,9 @@ usage() {
 	exit 1
 }
 
+# disable file name generation (globbing)
+set -f
+
 while getopts i:e:d:g OPT
 do
     case $OPT in
