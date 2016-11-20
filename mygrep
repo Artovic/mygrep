@@ -3,13 +3,16 @@
 INC_FILES=""
 EXC_FILES="tags"
 EXC_DIRS=".svn .git"
+DEBUG=0
 
 usage() {
-	echo "Usage: $0 [-i INC_FILE] [-e EXC_FILE] [-d EXC_DIR] WORD" 1>&2
+	APPNAME=`basename $0`
+	OPTS="[-i INC_FILE] [-e EXC_FILE] [-d EXC_DIR] [-g]"
+	echo "Usage: $APPNAME $OPTS WORD" 1>&2
 	exit 1
 }
 
-while getopts i:e:d: OPT
+while getopts i:e:d:g OPT
 do
     case $OPT in
         i)  INC_FILES="$INC_FILES $OPTARG"
@@ -17,6 +20,8 @@ do
         e)  EXC_FILES="$EXC_FILES $OPTARG"
             ;;
         d)  EXC_DIRS="$EXC_DIRS $OPTARG"
+            ;;
+        g)  DEBUG=1
             ;;
         \?) usage
             ;;
@@ -30,6 +35,12 @@ WORD=$1
 for i in $INC_FILES; do INCLUDE="$INCLUDE --include=$i"; done
 for i in $EXC_FILES; do EXCLUDE="$EXCLUDE --exclude=$i"; done
 for i in $EXC_DIRS; do EXCLUDE_DIR="$EXCLUDE_DIR --exclude-dir=$i"; done
+if [ $DEBUG ]; then
+	echo "INCLUDE=$INCLUDE"
+	echo "EXCLUDE=$EXCLUDE"
+	echo "EXCLUDE_DIR=$EXCLUDE_DIR"
+fi
 
 GREP_OPT="--color=auto -rn $INCLUDE $EXCLUDE $EXCLUDE_DIR"
+[ $DEBUG ] && echo "grep $GREP_OPT \"$WORD\""
 grep $GREP_OPT "$WORD"
