@@ -1,5 +1,6 @@
 #!/bin/bash
 
+GREP_OPT="-rn --color=auto"
 INC_FILES=""
 EXC_FILES="tags"
 EXC_DIRS=".svn .git"
@@ -15,7 +16,7 @@ usage() {
 # disable file name generation (globbing)
 set -f
 
-while getopts i:e:d:g OPT
+while getopts i:e:d:wg OPT
 do
     case $OPT in
         i)  INC_FILES="$INC_FILES $OPTARG"
@@ -23,6 +24,8 @@ do
         e)  EXC_FILES="$EXC_FILES $OPTARG"
             ;;
         d)  EXC_DIRS="$EXC_DIRS $OPTARG"
+            ;;
+        w)  GREP_OPT="$GREP_OPT -w"
             ;;
         g)  DEBUG=1
             ;;
@@ -44,6 +47,6 @@ if [ $DEBUG ]; then
 	echo "EXCLUDE_DIR=$EXCLUDE_DIR"
 fi
 
-GREP_OPT="--color=auto -rn $INCLUDE $EXCLUDE $EXCLUDE_DIR"
+GREP_OPT="$GREP_OPT $INCLUDE $EXCLUDE $EXCLUDE_DIR"
 [ $DEBUG ] && echo "grep $GREP_OPT \"$WORD\""
 grep $GREP_OPT "$WORD"
