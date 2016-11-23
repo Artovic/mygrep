@@ -9,7 +9,7 @@ DEBUG=0
 
 usage() {
 	APPNAME=`basename $0`
-	echo "Usage: $APPNAME [OPTIONS] PATTERN" 1>&2
+	echo "Usage: $APPNAME [OPTIONS] PATTERN [FILES...]" 1>&2
 	echo ""
 	echo " [OPTIONS]"
 	echo "  -inc|--include <GLOB>"
@@ -56,6 +56,8 @@ done
 [ $# -le 0 ] && usage
 
 PATTERN=$1
+shift
+FILES=$@
 for i in $INC_FILES; do INCLUDE="$INCLUDE --include=$i"; done
 for i in $EXC_FILES; do EXCLUDE="$EXCLUDE --exclude=$i"; done
 for i in $EXC_DIRS; do EXCLUDE_DIR="$EXCLUDE_DIR --exclude-dir=$i"; done
@@ -66,5 +68,5 @@ if [ $DEBUG -ne 0 ]; then
 fi
 
 GREP_OPT="$GREP_OPT $INCLUDE $EXCLUDE $EXCLUDE_DIR"
-[ $DEBUG -ne 0 ] && echo "grep $GREP_OPT \"$PATTERN\""
-grep $GREP_OPT "$PATTERN"
+[ $DEBUG -ne 0 ] && echo "grep $GREP_OPT \"$PATTERN\" $FILES"
+grep $GREP_OPT "$PATTERN" $FILES
