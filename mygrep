@@ -9,36 +9,53 @@ DEBUG=0
 
 usage() {
 	APPNAME=`basename $0`
-	OPTS="[-i INC_FILE] [-e EXC_FILE] [-d EXC_DIR] [-g]"
-	echo "Usage: $APPNAME $OPTS WORD" 1>&2
+	echo "Usage: $APPNAME [OPTIONS] PATTERN" 1>&2
+	echo ""
+	echo " [OPTIONS]"
+	echo "  -inc|--include <GLOB>"
+	echo "  -exc|--exclude <GLOB>"
+	echo "  -exd|--exclude-dir <GLOB>"
+	echo "  --debug"
+	echo "  --help"
+	echo "  -* ... pass through to grep command"
+	echo ""
 	exit 1
 }
 
 # disable file name generation (globbing)
 set -f
 
-while getopts i:e:d:wg OPT
-do
-    case $OPT in
-        i)  INC_FILES="$INC_FILES $OPTARG"
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        '-inc' | '--include')
+            [ "$#" -lt 2 ] && usage
+            INC_FILES="$INC_FILES $2"
+            shift
             ;;
-        e)  EXC_FILES="$EXC_FILES $OPTARG"
+        '-exc' | '--exclude')
+            [ "$#" -lt 2 ] && usage
+            EXC_FILES="$EXC_FILES $2"
+            shift
             ;;
-        d)  EXC_DIRS="$EXC_DIRS $OPTARG"
+        '-exd' | '--exclude-dir')
+            [ "$#" -lt 2 ] && usage
+            EXC_DIRS="$EXC_DIRS $2"
+            shift
             ;;
-        w)  GREP_OPT="$GREP_OPT -w"
+        '--debug') DEBUG=1
             ;;
-        g)  DEBUG=1
+        '--help') usage
             ;;
-        \?) usage
+        -*) GREP_OPT="$GREP_OPT $1"
+            ;;
+        *) break
             ;;
     esac
+    shift
 done
-
-shift $((OPTIND - 1))
 [ $# -le 0 ] && usage
 
-WORD=$1
+PATTERN=$1
 for i in $INC_FILES; do INCLUDE="$INCLUDE --include=$i"; done
 for i in $EXC_FILES; do EXCLUDE="$EXCLUDE --exclude=$i"; done
 for i in $EXC_DIRS; do EXCLUDE_DIR="$EXCLUDE_DIR --exclude-dir=$i"; done
@@ -49,5 +66,5 @@ if [ $DEBUG -ne 0 ]; then
 fi
 
 GREP_OPT="$GREP_OPT $INCLUDE $EXCLUDE $EXCLUDE_DIR"
-[ $DEBUG -ne 0 ] && echo "grep $GREP_OPT \"$WORD\""
-grep $GREP_OPT "$WORD"
+[ $DEBUG -ne 0 ] && echo "grep $GREP_OPT \"$PATTERN\""
+grep $GREP_OPT "$PATTERN"
